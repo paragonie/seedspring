@@ -1,5 +1,7 @@
 # seedspring
 
+[![Build Status](https://travis-ci.org/paragonie/seedspring.svg?branch=master)](https://travis-ci.org/paragonie/seedspring)
+
 Seeded, Deterministic PRNG (based on AES-CTR instead of LCG) (**Requires PHP 7**)
 
 ### Installing
