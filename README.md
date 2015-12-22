@@ -4,7 +4,12 @@
 
 Seeded, Deterministic PRNG (based on AES-CTR instead of LCG) (**Requires PHP 7**)
 
-### Installing
+## Security Warning
+
+This is not meant to replace `random_bytes()`. Think of this as an improvement
+to `srand()` + `rand()`. **Do not use this for security purposes.**
+
+## Installing
 
 ```sh
 composer require paragonie/seedspring
