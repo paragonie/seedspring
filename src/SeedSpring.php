@@ -68,7 +68,7 @@ class SeedSpring
          * integers along a given range.
          */
         if ($min > $max) {
-            throw new Error(
+            throw new \Error(
                 'Minimum value must be less than or equal to the maximum value'
             );
         }
@@ -96,7 +96,7 @@ class SeedSpring
         /**
          * Test for integer overflow:
          */
-        if (!is_int($range)) {
+        if (!\is_int($range)) {
             /**
              * Still safely calculate wider ranges.
              * Provided by @CodesInChaos, @oittaa
@@ -136,8 +136,8 @@ class SeedSpring
              * to a failure probability of 2^-128 for a working RNG
              */
             if ($attempts > 128) {
-                throw new Exception(
-                    'random_int: RNG is broken - too many rejections'
+                throw new \Exception(
+                    'RNG is broken - too many rejections'
                 );
             }
     
@@ -163,7 +163,7 @@ class SeedSpring
              */
             $val = 0;
             for ($i = 0; $i < $bytes; ++$i) {
-                $val |= ord($randomByteString[$i]) << ($i * 8);
+                $val |= \ord($randomByteString[$i]) << ($i * 8);
             }
     
             /**
@@ -179,7 +179,7 @@ class SeedSpring
              * ... or smaller than $min,
              * then try again.
              */
-        } while (!is_int($val) || $val > $max || $val < $min);
+        } while (!\is_int($val) || $val > $max || $val < $min);
         return (int) $val;
     }
     
