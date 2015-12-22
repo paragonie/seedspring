@@ -1,5 +1,5 @@
 <?php
-namespace \ParagonIE\SeedSpring;
+namespace ParagonIE\SeedSpring;
 
 class SeedSpring
 {
