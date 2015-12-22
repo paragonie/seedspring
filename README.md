@@ -38,7 +38,8 @@ shared seed. (e.g. something like Minecraft's world generator).
 
 PHP's native seedable (and insecure) RNGs, `rand()` and `mt_rand()`, only 
 support a 32-bit integer seed, which severely limits the possible outputs. Our
-deterministic RNG supports up
+deterministic RNG supports up to 2^128 possible outputs, since it's based on a
+128-bit block cipher.
 
 Our implementation uses AES-128-CTR to turn a finite, 128-bit key into an
 practically endless stream of random bytes. (It will repeat after 2^132 bytes of
