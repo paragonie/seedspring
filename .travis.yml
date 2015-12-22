@@ -1,0 +1,18 @@
+language: php
+php:
+
+- "7.0"
+
+sudo: false
+
+matrix:
+    fast_finish: true
+
+install:
+
+- composer install
+- composer self-update
+- composer update
+- chmod +x ./phpunit.sh
+
+script: php vendor/bin/phpunit test

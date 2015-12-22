@@ -1,0 +1,23 @@
+{
+    "name": "paragonie/seedspring",
+    "description": "Seeded, deterministic random number generator",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paragon Initiative Enterprises",
+            "email": "info@paragonie.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ParagonIE\\SeedSpring\\": "src"
+        }
+    },
+    "require": {
+        "php": "^7.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.*"
+    }
+}
