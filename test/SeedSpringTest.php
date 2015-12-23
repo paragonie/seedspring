@@ -27,4 +27,22 @@ class SeedSpringTest extends PHPUnit_Framework_TestCase
             $int2
         );
     }
+
+    public function testDifferentSeeds()
+    {
+        $seed1 = str_repeat("\x00", 16);
+        $seed2 = str_repeat("\x80", 16);
+
+        $rnd1 = new SeedSpring($seed1);
+        $rnd2 = new SeedSpring($seed2);
+
+        $out1 = $rnd1->getBytes(256);
+        $out2 = $rnd2->getBytes(256);
+
+        $this->assertNotEquals(
+            $out1,
+            $out2,
+            'Different seeds should result in different output'
+        );
+    }
 }

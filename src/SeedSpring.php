@@ -4,7 +4,8 @@ namespace ParagonIE\SeedSpring;
 class SeedSpring
 {
     protected $counter;
-    
+    private $seed;
+
     public function __construct(string $seed = '', int $counter = 0)
     {
         $this->seed('set', $seed);
@@ -21,12 +22,11 @@ class SeedSpring
      */
     private function seed(string $action = 'get', string $data = '')
     {
-        static $seed = null;
         if ($action === 'set') {
-            $seed = $data;
+            $this->seed = $data;
             return;
         } elseif ($action === 'get') {
-            return $data;
+            return $this->seed;
         } else {
             throw new \Error(
                 'Unknown action'
