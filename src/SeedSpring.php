@@ -7,6 +7,13 @@ class SeedSpring
     
     public function __construct(string $seed = '', int $counter = 0)
     {
+        if (\function_exists('\\mb_strlen')) {
+            if (\mb_strlen($seed, '8bit') !== 16) {
+                throw new \InvalidArgumentException('Seed must be 16 bytes');
+            }
+        } elseif (\strlen($seed) !== 16) {
+            throw new \InvalidArgumentException('Seed must be 16 bytes');
+        }
         $this->seed('set', $seed);
         $this->counter = 0;
     }
@@ -22,11 +29,12 @@ class SeedSpring
     private function seed(string $action = 'get', string $data = '')
     {
         static $seed = null;
+        $hash = \spl_object_hash($this);
         if ($action === 'set') {
-            $seed = $data;
+            $seed[$hash] = $data;
             return;
         } elseif ($action === 'get') {
-            return $data;
+            return $seed[$hash];
         } else {
             throw new \Error(
                 'Unknown action'
