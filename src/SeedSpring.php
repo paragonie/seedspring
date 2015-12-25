@@ -1,8 +1,14 @@
 <?php
 namespace ParagonIE\SeedSpring;
 
-class SeedSpring
+final class SeedSpring
 {
+    const SEEK_SET = 0;
+    
+    // Increase the nonce counter
+    const SEEK_INCREASE = 1;
+    const SEEK_INC = 1;
+    
     protected $counter;
     
     public function __construct(string $seed = '', int $counter = 0)
@@ -39,6 +45,24 @@ class SeedSpring
             throw new \Error(
                 'Unknown action'
             );
+        }
+    }
+    
+    /**
+     * Seek to a given position
+     * 
+     * @param int $position
+     * @param int $seektype Set to self:SEEK_SET or self::SEEK_INCREASE
+     */
+    public function seek(int $position, int $seektype = self::SEEK_SET)
+    {
+        switch ($seektype) {
+            case self::SEEK_SET:
+                $this->counter = $position;
+                break;
+            case self::SEEK_INCREASE:
+                $this->counter += $position;
+                break;
         }
     }
 
