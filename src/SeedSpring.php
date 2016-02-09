@@ -11,7 +11,7 @@ final class SeedSpring
     
     protected $counter;
     
-    public function __construct(string $seed = '', int $counter = 0)
+    public function __construct($seed = '', $counter = 0)
     {
         if (\function_exists('\\mb_strlen')) {
             if (\mb_strlen($seed, '8bit') !== 16) {
@@ -32,7 +32,7 @@ final class SeedSpring
      *
      * @return string|void
      */
-    private function seed(string $action = 'get', string $data = '')
+    private function seed($action = 'get', $data = '')
     {
         static $seed = null;
         $hash = \spl_object_hash($this);
@@ -54,7 +54,7 @@ final class SeedSpring
      * @param int $position
      * @param int $seektype Set to self:SEEK_SET or self::SEEK_INCREASE
      */
-    public function seek(int $position, int $seektype = self::SEEK_SET)
+    public function seek($position, $seektype = self::SEEK_SET)
     {
         switch ($seektype) {
             case self::SEEK_SET:
@@ -92,7 +92,7 @@ final class SeedSpring
      * @param int $max
      * @return int
      */
-    public function getInt(int $min, int $max): int
+    public function getInt($min, $max): int
     {
         /**
          * Now that we've verified our weak typing system has given us an integer,
@@ -221,7 +221,7 @@ final class SeedSpring
      * @param int $increment
      * @return string
      */
-    protected function getNonce(int $increment = 0): string
+    protected function getNonce($increment = 0)
     {
         $nonce = '';
         $ctr = $this->counter;
