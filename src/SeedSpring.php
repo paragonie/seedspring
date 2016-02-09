@@ -72,7 +72,7 @@ final class SeedSpring
      * @param int $numBytes How many bytes do we want?
      * @return string
      */
-    public function getBytes(int $numBytes): string
+    public function getBytes($numBytes)
     {
         return \openssl_encrypt(
             \str_repeat("\0", $numBytes),
@@ -92,7 +92,7 @@ final class SeedSpring
      * @param int $max
      * @return int
      */
-    public function getInt($min, $max): int
+    public function getInt($min, $max)
     {
         /**
          * Now that we've verified our weak typing system has given us an integer,
