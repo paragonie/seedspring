@@ -229,7 +229,8 @@ final class SeedSpring
             $nonce = \chr($ctr & 0xFF) . $nonce;
             $ctr >>= 8;
         }
-        $this->counter += (int) \floor($increment + ($increment % 16) / 16);
+        $incr = (int) \floor(($increment + ($increment % 16)) / 16);
+        $this->counter += $incr;
         return \str_pad($nonce, 16, "\0", STR_PAD_LEFT);
     }
 }
