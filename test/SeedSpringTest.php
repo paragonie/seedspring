@@ -27,4 +27,17 @@ class SeedSpringTest extends PHPUnit_Framework_TestCase
             $int2
         );
     }
+
+    public function testNonceChanges()
+    {
+        $prng = new SeedSpring('JuxJ1XLnBKk7gPAS');
+        $this->assertSame(
+            'v',
+            $prng->getBytes(1)
+        );
+        $this->assertNotSame(
+            'v',
+            $prng->getBytes(1)
+        );
+    }
 }
