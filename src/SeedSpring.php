@@ -28,11 +28,7 @@ final class SeedSpring
      */
     public function __construct($seed = '', $counter = 0)
     {
-        if (\function_exists('\\mb_strlen')) {
-            if (\mb_strlen($seed, '8bit') !== 16) {
-                throw new \InvalidArgumentException('Seed must be 16 bytes');
-            }
-        } elseif (Binary::safeStrlen($seed) !== 16) {
+        if (Binary::safeStrlen($seed) !== 16) {
             throw new \InvalidArgumentException('Seed must be 16 bytes');
         }
         $this->seed('set', $seed);
@@ -106,6 +102,8 @@ final class SeedSpring
      * @param int $min
      * @param int $max
      * @return int
+     * @throws \Error
+     * @throws \Exception
      */
     public function getInt($min, $max)
     {
@@ -243,7 +241,7 @@ final class SeedSpring
         $incr = (int) \ceil(($increment + ($increment % 16)) / 16);
         $this->counter += $incr;
         while ($ctr > 0) {
-            $nonce = \chr($ctr & 0xFF) . $nonce;
+            $nonce = \pack('C', $ctr & 0xFF) . $nonce;
             $ctr >>= 8;
         }
         return \str_pad($nonce, 16, "\0", STR_PAD_LEFT);
