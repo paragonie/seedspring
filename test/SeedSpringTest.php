@@ -28,6 +28,53 @@ class SeedSpringTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * Our nonce logic needs to match OpenSSL's internals.
+     */
+    public function testCtrModeNonce()
+    {
+        $seed = random_bytes(16);
+
+        $rnd1 = new SeedSpring($seed);
+        $rnd2 = new SeedSpring($seed);
+
+        foreach ([4096, 4097, 8192, 16384, 65536] as $test) {
+            $buf1 = '';
+
+            for ($i = 0; $i < $test; $i += 16) {
+                $buf1 .= $rnd1->getBytes(
+                    $i + 16 > $test
+                        ? ($test - $i)
+                        : 16
+                );
+            }
+            $buf2 = $rnd2->getBytes($test);
+            $this->assertSame(
+                \ParagonIE\ConstantTime\Binary::safeStrlen($buf1),
+                \ParagonIE\ConstantTime\Binary::safeStrlen($buf2),
+                'Not the same length - test ' . $test
+            );
+
+            $this->assertSame(
+                bin2hex(substr($buf1, 0, 16)),
+                bin2hex(substr($buf2, 0, 16)),
+                'AES CTR nonce isn\'t correct - first 16 - test ' . $test
+            );
+
+            $this->assertSame(
+                bin2hex(substr($buf1, 16, 16)),
+                bin2hex(substr($buf2, 16, 16)),
+                'AES CTR nonce isn\'t correct - next 16 - test ' . $test
+            );
+
+            $this->assertSame(
+                bin2hex(substr($buf1, -16, 16)),
+                bin2hex(substr($buf2, -16, 16)),
+                'AES CTR nonce isn\'t correct - last 16 - test ' . $test
+            );
+        }
+    }
+
     public function testNonceChanges()
     {
         $prng = new SeedSpring('JuxJ1XLnBKk7gPAS');
