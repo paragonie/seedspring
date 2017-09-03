@@ -1,5 +1,6 @@
 <?php
-use \ParagonIE\SeedSpring\SeedSpring;
+use ParagonIE\SeedSpring\SeedSpring;
+use ParagonIE\ConstantTime\Hex;
 
 class SeedSpringTest extends PHPUnit_Framework_TestCase
 {
@@ -56,8 +57,8 @@ class SeedSpringTest extends PHPUnit_Framework_TestCase
             );
 
             $this->assertSame(
-                bin2hex(substr($buf1, 0, 16)),
-                bin2hex(substr($buf2, 0, 16)),
+                Hex::encode(\ParagonIE\ConstantTime\Binary::safeSubstr($buf1, 0, 16)),
+                Hex::encode(\ParagonIE\ConstantTime\Binary::safeSubstr($buf2, 0, 16)),
                 'AES CTR nonce isn\'t correct - first 16 - test ' . $test
             );
 

@@ -52,11 +52,8 @@ final class SeedSpring
             return '';
         } elseif ($action === 'get') {
             return (string) $seed[$hash];
-        } else {
-            throw new \Error(
-                'Unknown action'
-            );
         }
+        throw new \Error('Unknown action');
     }
 
     /**
@@ -64,6 +61,7 @@ final class SeedSpring
      *
      * @param int $position
      * @param int $seektype Set to self:SEEK_SET or self::SEEK_INCREASE
+     * @return self
      */
     public function seek($position, $seektype = self::SEEK_SET)
     {
@@ -75,6 +73,7 @@ final class SeedSpring
                 $this->counter += $position;
                 break;
         }
+        return $this;
     }
 
     /**
@@ -85,7 +84,7 @@ final class SeedSpring
      */
     public function getBytes($numBytes)
     {
-        return \openssl_encrypt(
+        return (string) \openssl_encrypt(
             \str_repeat("\0", $numBytes),
             'aes-128-ctr',
             $this->seed('get'),
@@ -135,6 +134,7 @@ final class SeedSpring
          * At this point, $range is a positive number greater than 0. It might
          * overflow, however, if $max - $min > PHP_INT_MAX. PHP will cast it to
          * a float and we will lose some precision.
+         * @var int $range
          */
         $range = $max - $min;
 

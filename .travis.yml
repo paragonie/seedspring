@@ -15,4 +15,7 @@ install:
 - composer self-update
 - composer update
 
-script: php vendor/bin/phpunit test
+script:
+
+- vendor/bin/phpunit
+- vendor/bin/psalm
