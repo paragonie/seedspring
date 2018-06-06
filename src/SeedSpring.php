@@ -21,6 +21,11 @@ final class SeedSpring
     protected $counter;
 
     /**
+     * @var bool
+     */
+    protected $usePolyfill;
+
+    /**
      * SeedSpring constructor.
      *
      * @param string $seed
@@ -33,6 +38,11 @@ final class SeedSpring
         }
         $this->seed('set', $seed);
         $this->counter = 0;
+        $this->usePolyfill = !\in_array(
+            'aes-256-ctr',
+            \openssl_get_cipher_methods(),
+            true
+        );
     }
 
     /**
@@ -51,6 +61,10 @@ final class SeedSpring
             $seed[$hash] = $data;
             return '';
         } elseif ($action === 'get') {
+            /**
+             * @var array<string, string> $seed
+             * @var string $return
+             */
             return (string) $seed[$hash];
         }
         throw new \Error('Unknown action');
@@ -84,6 +98,13 @@ final class SeedSpring
      */
     public function getBytes($numBytes)
     {
+        if ($this->usePolyfill) {
+            return self::aes256ctr(
+                \str_repeat("\0", $numBytes),
+                $this->seed('get'),
+                $this->getNonce($numBytes)
+            );
+        }
         return (string) \openssl_encrypt(
             \str_repeat("\0", $numBytes),
             'aes-128-ctr',
@@ -127,6 +148,12 @@ final class SeedSpring
          * $bytes => the number of random bytes we need
          * $mask => an integer bitmask (for use with the &) operator
          *          so we can minimize the number of discards
+         *
+         * @var int $valueShift
+         * @var int $mask
+         * @var int $bytes
+         * @var int $bits
+         * @var int $attempts
          */
         $attempts = $bits = $bytes = $mask = $valueShift = 0;
 
@@ -134,7 +161,7 @@ final class SeedSpring
          * At this point, $range is a positive number greater than 0. It might
          * overflow, however, if $max - $min > PHP_INT_MAX. PHP will cast it to
          * a float and we will lose some precision.
-         * @var int $range
+         * @var int|float $range
          */
         $range = $max - $min;
 
@@ -154,6 +181,7 @@ final class SeedSpring
              * @ref http://3v4l.org/XX9r5  (64-bit)
              */
             $bytes = PHP_INT_SIZE;
+            /** @var int $mask */
             $mask = ~0;
         } else {
             /**
@@ -190,11 +218,6 @@ final class SeedSpring
              * Let's grab the necessary number of random bytes
              */
             $randomByteString = $this->getBytes($bytes);
-            if ($randomByteString === false) {
-                throw new \Exception(
-                    'Random number generator failure'
-                );
-            }
 
             /**
              * Let's turn $randomByteString into an integer
@@ -245,5 +268,59 @@ final class SeedSpring
             $ctr >>= 8;
         }
         return \str_pad($nonce, 16, "\0", STR_PAD_LEFT);
+    }
+
+    /**
+     * Userland polyfill for AES-256-CTR, using AES-256-ECB
+     *
+     * @param string $plaintext
+     * @param string $key
+     * @param string $nonce
+     * @return string
+     */
+    public static function aes256ctr($plaintext, $key, $nonce)
+    {
+        if (empty($plaintext)) {
+            return '';
+        }
+        $length = Binary::safeStrlen($plaintext);
+        /** @var int $numBlocks */
+        $numBlocks = (($length - 1) >> 4) + 1;
+        $stream = '';
+        for ($i = 0; $i < $numBlocks; ++$i) {
+            $stream .= $nonce;
+            $nonce = self::ctrNonceIncrease($nonce);
+        }
+        /** @var string $xor */
+        $xor = \openssl_encrypt(
+            $stream,
+            'aes-256-ecb',
+            $key,
+            OPENSSL_RAW_DATA
+        );
+        return (string) (
+            $plaintext ^ Binary::safeSubstr($xor, 0, $length)
+        );
+    }
+
+    /**
+     * Increase a counter nonce, starting with the LSB (big-endian)
+     *
+     * @param string $nonce
+     * @return string
+     */
+    public static function ctrNonceIncrease($nonce)
+    {
+        /** @var array<int, int> $pieces */
+        $pieces = \unpack('C*', $nonce);
+        $c = 0;
+        ++$pieces[16];
+        for ($i = 16; $i > 0; --$i) {
+            $pieces[$i] += $c;
+            $c = $pieces[$i] >> 8;
+            $pieces[$i] &= 0xff;
+        }
+        \array_unshift($pieces, \str_repeat('C', 16));
+        return (string) \call_user_func_array('pack', $pieces);
     }
 }
