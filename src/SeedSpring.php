@@ -52,6 +52,8 @@ final class SeedSpring
      * @param string $data (for setting)
      * @return string
      * @throws \Error
+     * @psalm-suppress MixedArrayAssignment
+     * @psalm-suppress UnusedParam
      */
     private function seed($action = 'get', $data = '')
     {
@@ -65,7 +67,7 @@ final class SeedSpring
              * @var array<string, string> $seed
              * @var string $return
              */
-            return (string) $seed[$hash];
+            return $seed[$hash];
         }
         throw new \Error('Unknown action');
     }
@@ -248,7 +250,7 @@ final class SeedSpring
              * then try again.
              */
         } while (!\is_int($val) || $val > $max || $val < $min);
-        return (int) $val;
+        return $val;
     }
 
     /**
@@ -284,7 +286,6 @@ final class SeedSpring
             return '';
         }
         $length = Binary::safeStrlen($plaintext);
-        /** @var int $numBlocks */
         $numBlocks = (($length - 1) >> 4) + 1;
         $stream = '';
         for ($i = 0; $i < $numBlocks; ++$i) {
@@ -298,7 +299,7 @@ final class SeedSpring
             $key,
             OPENSSL_RAW_DATA
         );
-        return (string) (
+        return (
             $plaintext ^ Binary::safeSubstr($xor, 0, $length)
         );
     }
