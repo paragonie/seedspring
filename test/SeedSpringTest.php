@@ -1,8 +1,12 @@
 <?php
 use ParagonIE\SeedSpring\SeedSpring;
 use ParagonIE\ConstantTime\Hex;
+use PHPUnit\Framework\TestCase;
 
-class SeedSpringTest extends PHPUnit_Framework_TestCase
+/**
+ * Class SeedSpringTest
+ */
+class SeedSpringTest extends TestCase
 {
     public function testDeterminism()
     {
