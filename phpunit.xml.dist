@@ -9,13 +9,7 @@
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
-         syntaxCheck="true"
 >
-    <testsuites>
-        <testsuite name="Unit">
-            <directory>test</directory>
-        </testsuite>
-    </testsuites>
     <testsuites>
         <testsuite name="SeedSpring Test Suite">
             <directory suffix="Test.php">./test</directory>
