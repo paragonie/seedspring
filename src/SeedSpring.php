@@ -21,6 +21,11 @@ final class SeedSpring
     protected $counter;
 
     /**
+     * @var int
+     */
+    private $keyLength;
+
+    /**
      * @var bool
      */
     protected $usePolyfill;
@@ -33,16 +38,29 @@ final class SeedSpring
      */
     public function __construct($seed = '', $counter = 0)
     {
-        if (Binary::safeStrlen($seed) !== 16) {
-            throw new \InvalidArgumentException('Seed must be 16 bytes');
+        $this->reseed($seed, $counter);
+    }
+
+    /**
+     * @param string $seed
+     * @param int $counter
+     * @return self
+     */
+    public function reseed($seed = '', $counter = 0)
+    {
+        $length = Binary::safeStrlen($seed);
+        if (!\in_array($length, [16, 32], true)) {
+            throw new \InvalidArgumentException('Seed must be 16 or 32 bytes');
         }
+        $this->keyLength = $length << 3;
         $this->seed('set', $seed);
         $this->counter = 0;
         $this->usePolyfill = !\in_array(
-            'aes-256-ctr',
+            'aes-' . $this->keyLength . '-ctr',
             \openssl_get_cipher_methods(),
             true
         );
+        return $this;
     }
 
     /**
@@ -101,16 +119,17 @@ final class SeedSpring
     public function getBytes($numBytes)
     {
         if ($this->usePolyfill) {
-            return self::aes256ctr(
+            return self::aesCtr(
                 \str_repeat("\0", $numBytes),
-                $this->seed('get'),
-                $this->getNonce($numBytes)
+                $this->seed(),
+                $this->getNonce($numBytes),
+                $this->keyLength
             );
         }
         return (string) \openssl_encrypt(
             \str_repeat("\0", $numBytes),
-            'aes-128-ctr',
-            $this->seed('get'),
+            'aes-' . $this->keyLength . '-ctr',
+            $this->seed(),
             OPENSSL_RAW_DATA,
             $this->getNonce($numBytes)
         );
@@ -273,6 +292,19 @@ final class SeedSpring
     }
 
     /**
+     * Userland polyfill for AES-128-CTR, using AES-128-ECB
+     *
+     * @param string $plaintext
+     * @param string $key
+     * @param string $nonce
+     * @return string
+     */
+    public static function aes128ctr($plaintext, $key, $nonce)
+    {
+        return self::aesCtr($plaintext, $key, $nonce, 128);
+    }
+
+    /**
      * Userland polyfill for AES-256-CTR, using AES-256-ECB
      *
      * @param string $plaintext
@@ -281,6 +313,20 @@ final class SeedSpring
      * @return string
      */
     public static function aes256ctr($plaintext, $key, $nonce)
+    {
+        return self::aesCtr($plaintext, $key, $nonce, 256);
+    }
+
+    /**
+     * Userland polyfill for AES-CTR, using AES-ECB
+     *
+     * @param string $plaintext
+     * @param string $key
+     * @param string $nonce
+     * @param int $keyLength
+     * @return string
+     */
+    private static function aesCtr($plaintext, $key, $nonce, $keyLength)
     {
         if (empty($plaintext)) {
             return '';
@@ -295,7 +341,7 @@ final class SeedSpring
         /** @var string $xor */
         $xor = \openssl_encrypt(
             $stream,
-            'aes-256-ecb',
+            'aes-' . $keyLength . '-ecb',
             $key,
             OPENSSL_RAW_DATA
         );

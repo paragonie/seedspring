@@ -8,10 +8,25 @@ use PHPUnit\Framework\TestCase;
  */
 class SeedSpringTest extends TestCase
 {
-    public function testDeterminism()
-    {
-        $seed = random_bytes(16);
 
+    public function seedProvider()
+    {
+        return [
+            [str_repeat("\x00", 16)],
+            [str_repeat("\x00", 32)],
+            [str_repeat("\xFF", 16)],
+            [str_repeat("\xFF", 32)],
+            [random_bytes(16)],
+            [random_bytes(32)]
+        ];
+    }
+
+    /**
+     * @dataProvider seedProvider
+     * @throws Exception
+     */
+    public function testDeterminism($seed)
+    {
         $rnd1 = new SeedSpring($seed);
         $rnd2 = new SeedSpring($seed);
 
@@ -35,11 +50,11 @@ class SeedSpringTest extends TestCase
 
     /**
      * Our nonce logic needs to match OpenSSL's internals.
+     *
+     * @dataProvider seedProvider
      */
-    public function testCtrModeNonce()
+    public function testCtrModeNonce($seed)
     {
-        $seed = random_bytes(16);
-
         $rnd1 = new SeedSpring($seed);
         $rnd2 = new SeedSpring($seed);
 
