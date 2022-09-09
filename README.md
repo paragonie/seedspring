@@ -42,5 +42,11 @@ deterministic RNG supports up to 2^128 possible outputs, since it's based on a
 128-bit block cipher.
 
 Our implementation uses AES-128-CTR to turn a finite, 128-bit key into an
-practically endless stream of random bytes. (It will repeat after 2^132 bytes of
-output. You should consider rekeying after 2^66 bytes.)
+practically endless stream of random bytes. 
+
+It will repeat after 2^132 bytes of output. You should consider rekeying after 
+2^66 bytes.
+
+For anything security-sensitive, you should rekey after 2^39 bytes. This is
+because the probability of predicting successive blocks becomes unacceptably
+high for security operations.
